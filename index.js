@@ -17,161 +17,228 @@ class Queue {
     }
 }
 
-class Stack {
-
-	constructor(){
-		this.items = [];
-	}
-
-    length() {
-        return this.items.length
-    }
-
-    push(element) {
-        this.items.push(element);
-    }
-    unshift(element) {
-        this.items.unshift(element)
-    }
-    pop(){
-        if (this.items.length == 0)
-            return "Underflow";
-        return this.items.pop();
-    }
-}
-
-function array_compare(a, b) {
-    if(a.length != b.length)
-       return false;
-
-    for(i = 0; i < a.length; i++)
-       if(a[i] != b[i])
-          return false;
-
-    return true;
-}
-
-
 const root = document.getElementById('root')
 
 let preOrder = [];
+let list = [];
 function preOrderRec(node) {
     
-    let arr = [...node.children]
+    let arr = []
+    if(node == null) {
+        return null
+    }
     preOrder.push(node.id)
-    arr.forEach(item => preOrderRec(item))
+    if(node.firstElementChild) {
+        let temp = node.firstElementChild
+        while(temp.nextElementSibling+1) {
+            arr.push(temp)
+            temp = temp.nextElementSibling
+            if(temp == null) {
+                break
+            }
+        }
+        let rev = arr.reverse()
+        rev.forEach(item => {
+            list.push(item)
+        })
+        node = list.pop()
+        preOrderRec(node)
+    } else {
+        node = list.pop()
+        preOrderRec(node)
+    }
 }
 preOrderRec(root)
 
 
 let preOrder2 = []
 function preOrderNotRec(node) {
-    let stack = new Stack()
-    let VN = []
-    stack.push(node)
 
-    while (stack.length() > 0) {
-        node = stack.pop()
-        preOrder2.push(node.id)
+    let list1 = []
+    list1.push(node)
+
+    while (list1.length > 0) {
+
+        node = list1.pop()
+        let arr = []
 
         if(node == null) {
-            continue
+            break
         }
-        if(node in VN) {
-            continue
-        }
-        VN.push(node)
 
-        let arr = [...node.children]
-        let kost = arr.reverse()
-        kost.forEach(item => stack.push(item))
+        preOrder2.push(node.id)
+
+        if(node.firstElementChild) {
+            let temp = node.firstElementChild
+            while(temp.nextElementSibling+1) {
+                arr.push(temp)
+                temp = temp.nextElementSibling
+                if(temp == null) {
+                    break
+                }
+            }
+            let rev = arr.reverse()
+            rev.forEach(item => {
+                list1.push(item)
+            })
+            continue
+        } else {
+            continue
+        }
     }
 }
 preOrderNotRec(root)
 
 
 let postOrder = []
+let visitedNodes = [];
+let stack1 = []
 function postOrderRec(node) {
-    let arr = [...node.children]
-    arr.forEach(function(a) {
-        postOrderRec(a);
-        
-    });
-    postOrder.push(node.id)
+
+    let arr = []
+    if(!node) {
+        return false;
+    }
+
+    else if(visitedNodes.includes(node)) {
+        postOrder.push(node.id)
+        node = stack1.pop()
+        postOrderRec(node)
+    }
+
+    else if(node.firstElementChild) {
+        stack1.push(node)
+        visitedNodes.push(node)
+        let temp = node.firstElementChild
+        while(temp.nextElementSibling+1) {
+            arr.push(temp)
+            temp = temp.nextElementSibling
+            if(temp == null) {
+                break
+            }
+        }
+        let rev = arr.reverse()
+        rev.forEach(item => {
+            stack1.push(item)
+        })
+
+        node = stack1.pop()
+        postOrderRec(node)
+    } else {
+        visitedNodes.push(node)
+        postOrder.push(node.id)
+        node = stack1.pop()
+        postOrderRec(node || false)  
+    }
+       
 }
 postOrderRec(root)
 
 let postOrder2 = []
 function postOrderNotRec(node) {
-    let stack = new Stack()
-    let VN = []
+    let stack = []
+    let visitedNodes = []
     stack.push(node)
-   
-    while(stack.length() >0) {
-        node=stack.pop()
-        
-        if(node==null) {
-            continue
-        }
-        
-        if(VN.includes(node)) {
+
+    while (stack.length > 0) {
+
+        let arr = []
+        node = stack.pop()
+
+        if(visitedNodes.includes(node)) {
             postOrder2.push(node.id)
             continue
         }
-        VN.push(node)
-        let arr = [...node.children]
-        if(array_compare(arr,[]) == false) {
-            let kost = arr.reverse()
+
+        visitedNodes.push(node)
+        
+        if(node.firstElementChild) {
             stack.push(node)
-            kost.forEach(item => stack.push(item))
-            
+            let temp = node.firstElementChild
+            while(temp.nextElementSibling+1) {
+                arr.push(temp)
+                temp = temp.nextElementSibling
+                if(temp == null) {
+                    break
+                }
+            }
+            let rev = arr.reverse()
+            rev.forEach(item => {
+                stack.push(item)
+            })
+            continue
         } else {
             postOrder2.push(node.id)
+            continue
         }
-           
     }
 }
 postOrderNotRec(root)
 
 let levelOrder = []
+let visitedNodes3 = []
 let my_queue = new Queue()
 function levelOrderRec(node) {
     
-    if (node == null) {
-        return 1
+    let arr = []
+    if(node == null) {
+        return null
     }
     levelOrder.push(node.id)
-    let arr = [...node.children]
-    arr.forEach(item => {
-        my_queue.enqueue(item)
-    })
-    node = my_queue.dequeue()
-    levelOrderRec(node)
+    if(node.firstElementChild) {
+        let temp = node.firstElementChild
+        while(temp.nextElementSibling+1) {
+            arr.push(temp)
+            temp = temp.nextElementSibling
+            if(temp == null) {
+                break
+            }
+        }
+    
+        arr.forEach(item => {
+            my_queue.enqueue(item)
+        })
+        node = my_queue.dequeue()
+        levelOrderRec(node)
+    } else {
+        node = my_queue.dequeue()
+        levelOrderRec(node)
+    }   
 }
 levelOrderRec(root)
 
 let levelOrder2 = []
 function levelOrderNotRec(node) {
     let q = new Queue()
-    let VN = []
     q.enqueue(node)
 
     while (q.length() > 0) {
 
+        let arr = []
         node = q.dequeue()
         levelOrder2.push(node.id)
     
         if (node == null) {
             continue
         }
-        if (node in VN) {
+        
+        if(node.firstElementChild) {
+            let temp = node.firstElementChild
+            while(temp.nextElementSibling+1) {
+                arr.push(temp)
+                temp = temp.nextElementSibling
+                if(temp == null) {
+                    break
+                }
+            }
+        
+            arr.forEach(item => {
+                q.enqueue(item)
+            })
+            continue
+        } else {
             continue
         }
-        VN.push(node)
-
-        let arr = [...node.children]
-        
-        arr.forEach(item => q.enqueue(item))
     }   
 }
 levelOrderNotRec(root)
@@ -183,5 +250,8 @@ console.log(`Post order with Recursion: ${postOrder}`)
 console.log(`Post order w/o Recursion: ${postOrder2}`)
 console.log(`Level order with Recursion: ${levelOrder}`)
 console.log(`Level order w/o Recursion: ${levelOrder2}`)
+
+
+
 
 
